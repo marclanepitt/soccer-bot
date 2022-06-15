@@ -1,1 +1,1 @@
-web: soccer-bot/server
+web: server
