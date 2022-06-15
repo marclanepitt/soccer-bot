@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 	"os"
 	"soccer-bot/m/v2/commands"
+	"strings"
+
+	"github.com/densestvoid/groupme"
 )
 
 func main() {
@@ -19,18 +22,17 @@ func main() {
 
 func routeRequest(w http.ResponseWriter, r *http.Request) {
 	log.Println(r)
-	part := "/mvp"
 
-	bodyBytes, err := io.ReadAll(r.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	bodyString := string(bodyBytes)
-	log.Println(bodyString)
-	action, err := commands.GetActionFromCommand(part)
+	message := &groupme.Message{}
+	json.NewDecoder(r.Body).Decode(message)
+
+	parts := strings.Split(message.Text, " ")
+	args := strings.Join(parts[1:], " ")
+
+	action, err := commands.GetActionFromCommand(parts[0])
 	if err != nil {
 		return
 	}
 
-	action(part)
+	action(args)
 }

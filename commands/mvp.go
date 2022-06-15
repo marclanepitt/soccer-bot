@@ -1,6 +1,12 @@
 package commands
 
-import "log"
+import (
+	"context"
+	"fmt"
+	soccerbot "soccer-bot/m/v2"
+
+	"github.com/densestvoid/groupme"
+)
 
 func init() {
 	command := &Command{
@@ -12,5 +18,10 @@ func init() {
 }
 
 func mvpAction(text string) {
-	log.Println("asdfsa")
+	client := groupme.NewClient(soccerbot.Token)
+	defer client.Close()
+
+	client.CreateMessage(context.TODO(), groupme.ID(soccerbot.GroupId), &groupme.Message{
+		Text: fmt.Sprintf("Congrats! our mvp is %s", text),
+	})
 }
