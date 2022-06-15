@@ -15,7 +15,7 @@ func main() {
 	if port = os.Getenv("PORT"); port != "" {
 		port = ":8000"
 	}
-	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
 func routeRequest(w http.ResponseWriter, r *http.Request) {
