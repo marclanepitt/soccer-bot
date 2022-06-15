@@ -8,7 +8,7 @@ import (
 
 func main() {
 	http.HandleFunc("/botRequest", routeRequest)
-	log.Fatal(http.ListenAndServe(":443", nil))
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
 func routeRequest(w http.ResponseWriter, r *http.Request) {
