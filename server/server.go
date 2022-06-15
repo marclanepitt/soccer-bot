@@ -11,10 +11,9 @@ import (
 func main() {
 	http.HandleFunc("/botRequest", routeRequest)
 
-	var port string
-	if port = os.Getenv("PORT"); port != "" {
-		port = ":8000"
-	}
+	port := os.Getenv("PORT")
+
+	log.Println(port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
