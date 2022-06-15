@@ -21,8 +21,6 @@ func main() {
 }
 
 func routeRequest(w http.ResponseWriter, r *http.Request) {
-	log.Println(r)
-
 	message := &groupme.Message{}
 	json.NewDecoder(r.Body).Decode(message)
 
