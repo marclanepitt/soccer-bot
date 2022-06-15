@@ -3,8 +3,8 @@ package commands
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	soccerbot "soccer-bot/m/v2"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -81,14 +81,29 @@ func voteAction(text string, value int) error {
 }
 
 func leaderboardAction(text string) error {
+	message := "Turtle Yards Karma Leaderboard\n---------------------\n"
 	token := groupme.TokenProviderFromToken(soccerbot.Token)
 	client, err := groupme.NewClient(token)
 	if err != nil {
 		return err
 	}
 
-	randomStatement := mvpStatements[rand.Intn(len(mvpStatements))]
-	message := fmt.Sprintf(randomStatement, text)
+	leaderboardMap, err := getLeaderboard()
+	if err != nil {
+		return err
+	}
+
+	keys := make([]string, 0, len(leaderboardMap))
+	for k := range leaderboardMap {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(i, j int) bool {
+		return leaderboardMap[keys[i]] > leaderboardMap[keys[j]]
+	})
+
+	for i, k := range keys {
+		message += fmt.Sprintf("%d. %s: %d\n", i+1, k, leaderboardMap[k])
+	}
 
 	err = client.Bots.Send(groupme.BotMessageCommand{
 		BotID:   soccerbot.BotId,
@@ -151,4 +166,24 @@ func vote(name string, value int) (int, error) {
 	}
 
 	return count + value, nil
+}
+
+func getLeaderboard() (map[string]int, error) {
+	leaderboard := map[string]int{}
+	db, err := bolt.Open("bot.db", 0600, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte("Votes"))
+		c := b.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			value, _ := strconv.Atoi(string(v))
+			leaderboard[string(k)] = value
+		}
+		return nil
+	})
+	return leaderboard, nil
 }
