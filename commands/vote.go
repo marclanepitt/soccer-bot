@@ -14,19 +14,19 @@ import (
 
 func init() {
 	command := &Command{
-		Name:    "Upvote command",
+		Name:    "Upvote",
 		Action:  upvoteAction,
 		Trigger: "/upvote",
 	}
 
 	dcommand := &Command{
-		Name:    "Upvote command",
+		Name:    "Downvote",
 		Action:  downvoteAction,
 		Trigger: "/downvote",
 	}
 
 	lcommand := &Command{
-		Name:    "Leaderboard command",
+		Name:    "Leaderboard",
 		Action:  leaderboardAction,
 		Trigger: "/leaderboard",
 	}

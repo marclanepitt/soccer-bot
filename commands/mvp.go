@@ -17,7 +17,7 @@ var mvpStatements = []string{
 
 func init() {
 	command := &Command{
-		Name:    "MVP Command",
+		Name:    "Select MVP",
 		Action:  mvpAction,
 		Trigger: "/mvp",
 	}
