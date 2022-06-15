@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+	soccerbot "soccer-bot/m/v2"
 	"soccer-bot/m/v2/commands"
 	"strings"
 
@@ -14,10 +14,7 @@ import (
 
 func main() {
 	http.HandleFunc("/botRequest", routeRequest)
-
-	port := os.Getenv("PORT")
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", soccerbot.Port), nil))
 }
 
 func routeRequest(w http.ResponseWriter, r *http.Request) {
@@ -29,8 +26,18 @@ func routeRequest(w http.ResponseWriter, r *http.Request) {
 
 	action, err := commands.GetActionFromCommand(parts[0])
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	action(args)
+	err = action(args)
+	if err != nil {
+		log.Println(err)
+		token := groupme.TokenProviderFromToken(soccerbot.Token)
+		client, _ := groupme.NewClient(token)
+		err = client.Bots.Send(groupme.BotMessageCommand{
+			BotID:   soccerbot.BotId,
+			Message: "Oops, I encountered an error...",
+		})
+	}
 }

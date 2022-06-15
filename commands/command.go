@@ -6,7 +6,7 @@ import (
 
 type Command struct {
 	Name    string
-	Action  func(string)
+	Action  func(string) error
 	Trigger string
 }
 
@@ -16,7 +16,7 @@ func registerCommand(c *Command) {
 	RegisteredCommands = append(RegisteredCommands, c)
 }
 
-func GetActionFromCommand(text string) (func(string), error) {
+func GetActionFromCommand(text string) (func(string) error, error) {
 	for _, c := range RegisteredCommands {
 		if c.Trigger == text {
 			return c.Action, nil

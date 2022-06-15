@@ -1,3 +1,12 @@
+github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
+github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
+github.com/jarcoal/httpmock v1.0.8 h1:8kI16SoO6LQKgPE7PvQuV+YuD/inwHd7fOOe2zMbo4k=
 github.com/jarcoal/httpmock v1.0.8/go.mod h1:ATjnClrvW/3tijVmpL/va5Z3aAyGvqU3gCT8nX0Txik=
+github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
+github.com/joho/godotenv v1.4.0/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/nhomble/groupme.go v0.0.0-20211221214631-da4c29e8d2c8 h1:4Qrz7ZmJ/W7oiEJYTKWsdJPNEzlTpxJ/HcrkcCV90ac=
 github.com/nhomble/groupme.go v0.0.0-20211221214631-da4c29e8d2c8/go.mod h1:NH9/s8PK4iLwteqGKj7V99N6MpEuJX0CZButXHXstgc=
+github.com/peterhellberg/giphy v0.0.0-20220111102515-dcc13c187a93 h1:P7n7WcgAfZqj8Is8h2jLuVHH9Dvzbgcb9iP7TZWi5wk=
+github.com/peterhellberg/giphy v0.0.0-20220111102515-dcc13c187a93/go.mod h1:P4rRzLoVaDg/50tI4NxIRsBkV4lFEt5jYA5gyXwQaMg=
+golang.org/x/sys v0.0.0-20220614162138-6c1b26c55098 h1:PgOr27OhUx2IRqGJ2RxAWI4dJQ7bi9cSrB82uzFzfUA=
+golang.org/x/sys v0.0.0-20220614162138-6c1b26c55098/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
