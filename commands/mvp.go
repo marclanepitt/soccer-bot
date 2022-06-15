@@ -1,11 +1,10 @@
 package commands
 
 import (
-	"context"
 	"fmt"
 	soccerbot "soccer-bot/m/v2"
 
-	"github.com/densestvoid/groupme"
+	"github.com/nhomble/groupme.go/groupme"
 )
 
 func init() {
@@ -18,10 +17,14 @@ func init() {
 }
 
 func mvpAction(text string) {
-	client := groupme.NewClient(soccerbot.BotId)
-	defer client.Close()
+	token := groupme.TokenProviderFromToken(soccerbot.Token)
+	client, err := groupme.NewClient(token)
+	if err != nil {
+		return
+	}
 
-	client.CreateMessage(context.TODO(), groupme.ID(soccerbot.GroupId), &groupme.Message{
-		Text: fmt.Sprintf("Congrats! Our mvp is %s", text),
+	err = client.Bots.Send(groupme.BotMessageCommand{
+		BotID:   soccerbot.BotId,
+		Message: fmt.Sprintf("MVP is %s", text),
 	})
 }

@@ -9,7 +9,7 @@ import (
 	"soccer-bot/m/v2/commands"
 	"strings"
 
-	"github.com/densestvoid/groupme"
+	"github.com/nhomble/groupme.go/groupme"
 )
 
 func main() {
