@@ -18,11 +18,10 @@ func init() {
 }
 
 func mvpAction(text string) {
-	client := groupme.NewClient(soccerbot.Token)
+	client := groupme.NewClient(soccerbot.BotId)
 	defer client.Close()
 
 	client.CreateMessage(context.TODO(), groupme.ID(soccerbot.GroupId), &groupme.Message{
-		Text:     fmt.Sprintf("Congrats! Our mvp is %s", text),
-		SenderID: groupme.ID(soccerbot.BotId),
+		Text: fmt.Sprintf("Congrats! Our mvp is %s", text),
 	})
 }
