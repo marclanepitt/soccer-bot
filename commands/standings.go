@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	soccerbot "soccer-bot/m/v2"
+	"strconv"
 
 	"github.com/nhomble/groupme.go/groupme"
 )
@@ -109,7 +110,11 @@ func standingsAction(text string) error {
 	}
 
 	for _, team := range responseObj.Data.LeagueStandings.Standings {
-		message += fmt.Sprintf("%d - %s - %d - %d - %d - %d \n", team.Rank, team.Team.Name, team.Win, team.Lose, team.Tie, team.Forfeit)
+		rank := strconv.Itoa(team.Rank)
+		if team.Team.Name == "Turtle Yards FC" {
+			rank = "🟢"
+		}
+		message += fmt.Sprintf("%s - %s - %d - %d - %d - %d \n", rank, team.Team.Name, team.Win, team.Lose, team.Tie, team.Forfeit)
 	}
 
 	err = client.Bots.Send(groupme.BotMessageCommand{
