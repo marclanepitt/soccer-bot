@@ -17,7 +17,7 @@ import (
 type Vote struct {
 	gorm.Model
 	Name  string
-	Value uint
+	Value int
 }
 
 var parseDbUrlRegex = regexp.MustCompile("postgres:\\/\\/(.*?):(.*)@(.*):([0-9]*)\\/(.*)")
@@ -140,7 +140,7 @@ func voteAction(text string, value int) error {
 			}
 			db.Create(vote)
 		}
-		newValue := vote.Value + uint(value)
+		newValue := vote.Value + value
 		db.Model(&Vote{}).Where("name = ?", name).Update("value", newValue)
 		message = fmt.Sprintf("%s: %d karma", name, newValue)
 	} else {
@@ -192,8 +192,8 @@ func leaderboardAction(text string) error {
 	return nil
 }
 
-func getLeaderboardMap() (map[string]uint, error) {
-	leaderBoardMap := map[string]uint{}
+func getLeaderboardMap() (map[string]int, error) {
+	leaderBoardMap := map[string]int{}
 
 	db, err := getDb()
 	if err != nil {
