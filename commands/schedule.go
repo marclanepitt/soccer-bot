@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	soccerbot "soccer-bot/m/v2"
+	"time"
 
 	"github.com/nhomble/groupme.go/groupme"
 )
@@ -154,7 +155,7 @@ func scheduleAction(text string) error {
 	}
 
 	for _, game := range responseObj.Data.TeamSchedule.Games {
-		message += fmt.Sprintf("%s - %s - vs. %s \n", game.DateStr, game.StartTimeStr, game.Opponent.Name)
+		message += fmt.Sprintf("%s - %s - vs. %s \n", cleanDate(game.DateStr), cleanTime(game.StartTimeStr), game.Opponent.Name)
 	}
 
 	err = client.Bots.Send(groupme.BotMessageCommand{
@@ -214,7 +215,7 @@ func nextGameAction(text string) error {
 	nextGame := responseObj.Data.TeamSchedule.NextGame
 	var message string
 	if nextGame.ID != "" {
-		message = fmt.Sprintf("Next game will be against %s at %s on %s", nextGame.Opponent.Name, nextGame.StartTimeStr, nextGame.DateStr)
+		message = fmt.Sprintf("Next game will be against %s at %s on %s", nextGame.Opponent.Name, cleanTime(nextGame.StartTimeStr), cleanDate(nextGame.DateStr))
 	} else {
 		message = "unable to find next game"
 	}
@@ -229,16 +230,18 @@ func nextGameAction(text string) error {
 	return nil
 }
 
-// func cleanTime(time string) {
-// 	layout1 := "03:04:05PM"
-//     layout2 := "15:04"
-//     t, err := time.Parse(layout1, "07:05:45PM")
-//     if err != nil {
-//         fmt.Println(err)
-//         return
-//     }
-// }
+func cleanTime(input string) string {
+	t, err := time.Parse("15:04", input)
+	if err != nil {
+		return input
+	}
+	return t.Format(time.Kitchen)
+}
 
-// func cleanDate(date string) {
-
-// }
+func cleanDate(date string) string {
+	d, err := time.Parse("06/01/02", date)
+	if err != nil {
+		return date
+	}
+	return d.Format("01/02/06")
+}
