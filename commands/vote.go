@@ -1,16 +1,26 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	soccerbot "soccer-bot/m/v2"
 	"sort"
-	"strconv"
 	"strings"
 
-	"github.com/boltdb/bolt"
 	"github.com/nhomble/groupme.go/groupme"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
+
+type Vote struct {
+	gorm.Model
+	Name  string
+	Value uint
+}
+
+var parseDbUrlRegex = regexp.MustCompile("postgres:\\/\\/(.*?):(.*)@(.*):([0-9]*)\\/(.*)")
 
 func init() {
 	command := &Command{
@@ -42,6 +52,42 @@ func init() {
 	}
 }
 
+func initDb() error {
+	db, err := getDb()
+	if err != nil {
+		return err
+	}
+	db.AutoMigrate(&Vote{})
+	return nil
+}
+
+func getDb() (*gorm.DB, error) {
+	var dsn string
+	if soccerbot.DatabaseUrl != "" {
+		var (
+			dbHost   string
+			username string
+			dbName   string
+			password string
+			port     string
+		)
+		res := parseDbUrlRegex.FindAllStringSubmatch(soccerbot.DatabaseUrl, -1)
+		if len(res) > 0 {
+			matches := res[0]
+			username = matches[1]
+			password = matches[2]
+			dbHost = matches[3]
+			port = matches[4]
+			dbName = matches[5]
+		}
+		dsn = fmt.Sprintf("host=%s user=%s dbname=%s port=%s password=%s", dbHost, username, dbName, port, password)
+	} else {
+		dsn = "host=localhost port=5432 dbname=local sslmode=disable"
+	}
+
+	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
+}
+
 func upvoteAction(text string) error {
 	err := voteAction(text, 1)
 	if err != nil {
@@ -64,11 +110,42 @@ func voteAction(text string, value int) error {
 	if err != nil {
 		return err
 	}
-	count, err := vote(strings.ToLower(text), value)
+
+	db, err := getDb()
 	if err != nil {
 		return err
 	}
-	message := fmt.Sprintf("%s: %d karma", text, count)
+
+	group, err := client.Groups.Get(soccerbot.GroupId)
+	if err != nil {
+		return err
+	}
+	members := group.Members
+	membersMap := map[string]string{}
+	for _, member := range members {
+		membersMap[strings.ToLower(member.Nickname)] = member.Nickname
+	}
+
+	var message string
+	lowerText := strings.ToLower(text)
+
+	// if text matches member nickname
+	if name := membersMap[lowerText]; name != "" {
+		var vote *Vote
+		err = db.First(&vote, "name = ?", name).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			vote = &Vote{
+				Name:  name,
+				Value: 0,
+			}
+			db.Create(vote)
+		}
+		newValue := vote.Value + uint(value)
+		db.Model(&Vote{}).Where("name = ?", name).Update("value", newValue)
+		message = fmt.Sprintf("%s: %d karma", name, newValue)
+	} else {
+		message = fmt.Sprintf("Unable to find user with nickname \"%s\"", text)
+	}
 
 	err = client.Bots.Send(groupme.BotMessageCommand{
 		BotID:   soccerbot.BotId,
@@ -88,7 +165,7 @@ func leaderboardAction(text string) error {
 		return err
 	}
 
-	leaderboardMap, err := getLeaderboard()
+	leaderboardMap, err := getLeaderboardMap()
 	if err != nil {
 		return err
 	}
@@ -115,75 +192,19 @@ func leaderboardAction(text string) error {
 	return nil
 }
 
-func initDb() error {
-	db, err := bolt.Open("bot.db", 0600, nil)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	return nil
-}
+func getLeaderboardMap() (map[string]uint, error) {
+	leaderBoardMap := map[string]uint{}
 
-func vote(name string, value int) (int, error) {
-	var count int
-
-	db, err := bolt.Open("bot.db", 0600, nil)
-	if err != nil {
-		return 0, err
-	}
-	defer db.Close()
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("Votes"))
-		if err != nil {
-			return fmt.Errorf("create bucket: %s", err)
-		}
-		return nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	err = db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Votes"))
-		v := b.Get([]byte(name))
-		count, _ = strconv.Atoi(string(v))
-		return nil
-	})
-
-	if err != nil {
-		return 0, err
-	}
-
-	err = db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Votes"))
-		err := b.Put([]byte(name), []byte(strconv.Itoa(count+value)))
-		return err
-	})
-
-	if err != nil {
-		return 0, err
-	}
-
-	return count + value, nil
-}
-
-func getLeaderboard() (map[string]int, error) {
-	leaderboard := map[string]int{}
-	db, err := bolt.Open("bot.db", 0600, nil)
+	db, err := getDb()
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
 
-	db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Votes"))
-		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
-			value, _ := strconv.Atoi(string(v))
-			leaderboard[string(k)] = value
-		}
-		return nil
-	})
-	return leaderboard, nil
+	votes := []*Vote{}
+	db.Find(&votes)
+
+	for _, vote := range votes {
+		leaderBoardMap[vote.Name] = vote.Value
+	}
+	return leaderBoardMap, nil
 }

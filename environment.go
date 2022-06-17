@@ -6,22 +6,18 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 
 	"github.com/joho/godotenv"
 )
 
 var (
-	Token            string
-	GroupId          string
-	BotId            string
-	Port             string
-	DatabaseHost     string
-	DatabasePort     uint16
-	DatabaseUsername string
-	DatabasePassword string
-	VoloBearerToken  string
+	Token           string
+	GroupId         string
+	BotId           string
+	Port            string
+	DatabaseUrl     string
+	VoloBearerToken string
 )
 
 func init() {
@@ -35,15 +31,10 @@ func init() {
 		}
 	}
 
-	port, _ := strconv.Atoi(os.Getenv("PORT"))
-
 	Token = os.Getenv("TOKEN")
 	GroupId = os.Getenv("GROUP_ID")
 	BotId = os.Getenv("BOT_ID")
 	Port = os.Getenv("PORT")
-	DatabaseHost = os.Getenv("DATABASE_HOST")
-	DatabasePort = uint16(port)
-	DatabaseUsername = os.Getenv("DATABASE_USERNAME")
-	DatabasePassword = os.Getenv("DATABASE_PASSWORD")
+	DatabaseUrl = os.Getenv("DATABASE_URL")
 	VoloBearerToken = os.Getenv("BEARER_TOKEN")
 }
