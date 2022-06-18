@@ -7,13 +7,24 @@ import (
 	"net/http"
 	soccerbot "soccer-bot/m/v2"
 	"soccer-bot/m/v2/commands"
+	"soccer-bot/m/v2/tasks"
 	"strings"
 
 	"github.com/nhomble/groupme.go/groupme"
+	"github.com/robfig/cron"
 )
 
 func main() {
+	c := cron.New()
+	for _, task := range tasks.RegisteredTasks {
+		c.AddFunc(task.Cron, task.Action)
+
+	}
+	log.Println("Starting tasks...")
+	c.Start()
+
 	http.HandleFunc("/botRequest", routeRequest)
+	log.Printf("Listening on port %s\n", soccerbot.Port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", soccerbot.Port), nil))
 }
 
