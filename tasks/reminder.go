@@ -75,7 +75,7 @@ func reminderAction() {
 	nextGame := responseObj.Data.TeamSchedule.NextGame
 	var message string
 	if nextGame.ID != "" {
-		message = fmt.Sprintf("Next game will be against %s at %s on %s.\n\n Like this message if you can make it!", nextGame.Opponent.Name, cleanTime(nextGame.StartTimeStr), cleanDate(nextGame.DateStr))
+		message = fmt.Sprintf("Next game will be against %s at %s on %s.\n\nLike this message if you can make it!", nextGame.Opponent.Name, cleanTime(nextGame.StartTimeStr), cleanDate(nextGame.DateStr))
 	} else {
 		message = "unable to find next game"
 	}
